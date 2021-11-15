@@ -109,7 +109,7 @@ class MayaviViewerFieldworkModel(MayaviViewerObject):
                 S = self._fields.get(self.fieldName)
 
         # draw
-        if self.model.ensemble_field_function.dimensions == 2:
+        if self.model.EnsembleFieldFunction.dimensions == 2:
             # triangulate vertices
             T = self.model.triangulator._triangulate(self.discrete)
 
@@ -134,7 +134,7 @@ class MayaviViewerFieldworkModel(MayaviViewerObject):
                 mayaviMesh = scene.mlab.triangular_mesh(P[0], P[1], P[2], T, scalars=S, name=self.name,
                                                         **self.renderArgs)
 
-        elif self.model.ensemble_field_function.dimensions == 1:
+        elif self.model.EnsembleFieldFunction.dimensions == 1:
             mayaviMesh = self.model._draw_curve([self.discrete[0]], name=self.name, **self.renderArgs)
 
         mayaviPoints = self._plot_points(scene)
