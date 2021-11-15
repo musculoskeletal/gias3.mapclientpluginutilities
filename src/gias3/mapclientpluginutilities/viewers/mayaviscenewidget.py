@@ -12,9 +12,6 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ===============================================================================
 """
 
-import os
-
-os.environ['ETS_TOOLKIT'] = 'qt5'
 
 from PySide2 import QtWidgets
 
@@ -46,7 +43,7 @@ class Visualisation(HasTraits):
 
 
 ################################################################################
-# The QWidget containing the visualization, this is pure PyQt4 code.
+# The QWidget containing the visualization, this is pure PySide2 code.
 class MayaviSceneWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):

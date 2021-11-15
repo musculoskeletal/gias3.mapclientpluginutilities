@@ -15,7 +15,7 @@ import logging
 
 from mayavi import mlab
 
-from gias2.mappluginutils.mayaviviewer.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject
+from gias3.mapclientpluginutilities.viewers.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject
 
 log = logging.getLogger(__name__)
 
@@ -23,10 +23,11 @@ log = logging.getLogger(__name__)
 class MayaviViewerGiasScanSceneObject(MayaviViewerSceneObject):
     typeName = 'giasscan'
 
-    def __init__(self, name, slicerWidget, ISrc):
+    def __init__(self, name, slicer_widget, i_src):
+        super().__init__()
         self.name = name
-        self.slicerWidget = slicerWidget
-        self.ISrc = ISrc
+        self.slicerWidget = slicer_widget
+        self.ISrc = i_src
 
     def setVisibility(self, visible):
         if self.slicerWidget:
@@ -49,15 +50,16 @@ class MayaviViewerGiasScan(MayaviViewerObject):
     _colourMap = 'black-white'
     _slicePlane = 'y_axes'
 
-    def __init__(self, name, scan, renderArgs=None):
+    def __init__(self, name, scan, render_args=None):
+        super().__init__()
         self.name = name
         self.scan = scan
         self.sceneObject = None
 
-        if renderArgs == None:
+        if render_args is None:
             self.renderArgs = {'vmin': self._vmin, 'vmax': self._vmax}
         else:
-            self.renderArgs = renderArgs
+            self.renderArgs = render_args
             if 'vmax' not in list(self.renderArgs.keys()):
                 self.renderArgs['vmax'] = self._vmax
             if 'vmin' not in list(self.renderArgs.keys()):
@@ -65,7 +67,7 @@ class MayaviViewerGiasScan(MayaviViewerObject):
             if 'colormap' not in list(self.renderArgs.keys()):
                 self.renderArgs['colormap'] = self._colourMap
 
-    def setScalarSelection(self, fieldName):
+    def setScalarSelection(self, field_name):
         pass
 
     def setVisibility(self, visible):
@@ -80,11 +82,12 @@ class MayaviViewerGiasScan(MayaviViewerObject):
         scene.disable_render = True
 
         try:
-            I = self.scan.I
+            img = self.scan.I
         except AttributeError:
+            img = None
             log.debug('scan is None:', self.name)
 
-        ISrc = mlab.pipeline.scalar_field(I, colormap=self.renderArgs['colormap'])
+        ISrc = mlab.pipeline.scalar_field(img, colormap=self.renderArgs['colormap'])
         slicerWidget = scene.mlab.pipeline.image_plane_widget(ISrc,
                                                               plane_orientation=self._slicePlane,
                                                               slice_index=0,

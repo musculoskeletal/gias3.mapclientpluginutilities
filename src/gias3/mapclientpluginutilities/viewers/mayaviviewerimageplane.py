@@ -14,16 +14,17 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from mayavi import mlab
 
-from gias2.mappluginutils.mayaviviewer.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject
+from gias3.mapclientpluginutilities.viewers.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject
 
 
 class MayaviViewerImagePlaneSceneObject(MayaviViewerSceneObject):
     typeName = 'giasscan'
 
-    def __init__(self, name, slicerWidget, ISrc):
+    def __init__(self, name, slicer_widget, i_src):
+        super().__init__()
         self.name = name
-        self.slicerWidget = slicerWidget
-        self.ISrc = ISrc
+        self.slicerWidget = slicer_widget
+        self.ISrc = i_src
 
     def setVisibility(self, visible):
         if self.slicerWidget:
@@ -46,15 +47,17 @@ class MayaviViewerImagePlane(MayaviViewerObject):
     _colourMap = 'black-white'
     _slicePlane = 'y_axes'
 
-    def __init__(self, name, image, renderArgs=None):
+    def __init__(self, name, image, render_args=None):
+        super().__init__()
         self.name = name
         self.imageArray = image
         self.sceneObject = None
+        self.scan = None
 
-        if renderArgs == None:
+        if render_args is None:
             self.renderArgs = {'vmin': self._vmin, 'vmax': self._vmax}
         else:
-            self.renderArgs = renderArgs
+            self.renderArgs = render_args
             if 'vmax' not in list(self.renderArgs.keys()):
                 self.renderArgs['vmax'] = self._vmax
             if 'vmin' not in list(self.renderArgs.keys()):

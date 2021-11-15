@@ -15,8 +15,8 @@ import logging
 
 import numpy as np
 
-from gias2.fieldwork.field import geometric_field
-from gias2.mappluginutils.mayaviviewer.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject, colours
+from gias3.fieldwork.field import geometric_field
+from gias3.mapclientpluginutilities.viewers.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject, colours
 
 log = logging.getLogger(__name__)
 
@@ -24,19 +24,20 @@ log = logging.getLogger(__name__)
 class MayaviViewerFieldworkModelSceneObject(MayaviViewerSceneObject):
     typeName = 'fieldworkmodel'
 
-    def __init__(self, name, mesh, points, elemLines=None):
+    def __init__(self, name, mesh, points, elem_lines=None):
+        super().__init__()
         self.name = name
         self.mesh = mesh
         self.points = points
-        self.elemLines = elemLines
+        self.elemLines = elem_lines
 
-    def setVisibility(self, meshVisible, pointsVisible, linesVisible):
+    def setVisibility(self, mesh_visible, points_visible, lines_visible):
         if self.mesh:
-            self.mesh.visible = meshVisible
+            self.mesh.visible = mesh_visible
         if self.points:
-            self.points.visible = pointsVisible
+            self.points.visible = points_visible
         if self.elemLines:
-            self.elemLines = linesVisible
+            self.elemLines = lines_visible
 
     def remove(self):
         if self.mesh:
@@ -55,40 +56,32 @@ class MayaviViewerFieldworkModelSceneObject(MayaviViewerSceneObject):
 class MayaviViewerFieldworkModel(MayaviViewerObject):
     typeName = 'fieldworkmodel'
 
-    def __init__(self, name, model, discret, evaluator=None, renderArgs=None, \
-                 fields=None, fieldName=None, PC=None, displayGFNodes=False, \
-                 mergeGFVertices=False):
+    def __init__(self, name, model, discrete, evaluator=None, render_args=None, fields=None, field_name=None, PC=None, display_gf_nodes=False, merge_gf_vertices=False):
+        super().__init__()
         self.name = name
         self.model = model
-        self.discret = discret
+        self.discrete = discrete
 
-        if evaluator == None:
-            self.evaluator = geometric_field.makeGeometricFieldEvaluatorSparse(self.model, self.discret)
+        if evaluator is None:
+            self.evaluator = geometric_field.makeGeometricFieldEvaluatorSparse(self.model, self.discrete)
         else:
             self.evaluator = evaluator
 
-        if renderArgs == None:
-            self.renderArgs = {}
-        else:
-            self.renderArgs = renderArgs
+        self.renderArgs = {} if render_args is None else render_args
+        self._fields = {} if fields is None else fields
 
-        if fields == None:
-            self.fields = {}
-        else:
-            self.fields = fields
-
-        self.fieldName = fieldName
+        self.fieldName = field_name
         self.PC = PC
         self.sceneObject = None
         self._uniqueVertexIndices = None
-        self.mergeGFVertices = mergeGFVertices
-        self.displayGFNodes = displayGFNodes
+        self.mergeGFVertices = merge_gf_vertices
+        self.displayGFNodes = display_gf_nodes
         self.defaultColour = colours['bone']
         if 'color' not in list(self.renderArgs.keys()):
             self.renderArgs['color'] = self.defaultColour
 
-    def setScalarSelection(self, fieldName):
-        self.fieldName = fieldName
+    def setScalarSelection(self, field_name):
+        self.fieldName = field_name
 
     def setVisibility(self, visible):
         self.sceneObject.setVisibility(visible, self.displayGFNodes & visible, visible)
@@ -101,23 +94,24 @@ class MayaviViewerFieldworkModel(MayaviViewerObject):
         scene.disable_render = True
         P = self.evaluator(self.model.get_field_parameters().ravel())
 
+        mayaviMesh = None
         # calc scalar
         S = None
         if self.fieldName != 'none':
             if self.fieldName == 'mean curvature':
-                K, H, k1, k2 = self.model.evaluate_curvature_in_mesh(self.discret)
+                K, H, k1, k2 = self.model.evaluate_curvature_in_mesh(self.discrete)
                 S = H
             elif self.fieldName == 'gaussian curvature':
-                K, H, k1, k2 = self.model.evaluate_curvature_in_mesh(self.discret)
+                K, H, k1, k2 = self.model.evaluate_curvature_in_mesh(self.discrete)
                 S = K
             else:
                 # check if S is a field that needs evaluating - TODO
-                S = self.fields.get(self.fieldName)
+                S = self._fields.get(self.fieldName)
 
         # draw
         if self.model.ensemble_field_function.dimensions == 2:
             # triangulate vertices
-            T = self.model.triangulator._triangulate(self.discret)
+            T = self.model.triangulator._triangulate(self.discrete)
 
             if self.mergeGFVertices:
                 log.debug(np.unique(T).shape)
@@ -129,10 +123,10 @@ class MayaviViewerFieldworkModel(MayaviViewerObject):
                 log.debug(np.unique(T).shape)
                 log.debug(np.where(P == 0.0)[0].shape)
 
-                if S != None:
-                    S = S[self.uniqueVertexIndices]
+                if S is not None:
+                    S = S[self._uniqueVertexIndices]
 
-            if (S == None) or (S == 'none'):
+            if (S is None) or (S == 'none'):
                 log.debug('S = None')
                 mayaviMesh = scene.mlab.triangular_mesh(P[0], P[1], P[2], T, name=self.name, **self.renderArgs)
             else:
@@ -141,7 +135,7 @@ class MayaviViewerFieldworkModel(MayaviViewerObject):
                                                         **self.renderArgs)
 
         elif self.model.ensemble_field_function.dimensions == 1:
-            mayaviMesh = self.model._draw_curve([self.discret[0]], name=self.name, **self.renderArgs)
+            mayaviMesh = self.model._draw_curve([self.discrete[0]], name=self.name, **self.renderArgs)
 
         mayaviPoints = self._plot_points(scene)
         if not self.displayGFNodes:
@@ -189,7 +183,7 @@ class MayaviViewerFieldworkModel(MayaviViewerObject):
         if params is None:
             params = self.model.field_parameters
 
-        if self.sceneObject == None:
+        if self.sceneObject is None:
             self.model.set_field_parameters(params)
             self.draw(scene)
         else:
@@ -197,20 +191,20 @@ class MayaviViewerFieldworkModel(MayaviViewerObject):
             p = params.reshape((3, -1))
 
             if self.mergeGFVertices:
-                V = V[:, self.uniqueVertexIndices]
+                V = V[:, self._uniqueVertexIndices]
 
             self.sceneObject.mesh.mlab_source.set(x=V[0], y=V[1], z=V[2])
             self.sceneObject.points.mlab_source.set(x=p[0], y=p[1], z=p[2])
 
-    def updateScalar(self, fieldName, scene):
-        self.setScalarSelection(fieldName)
-        if self.sceneObject == None:
+    def updateScalar(self, field_name, scene):
+        self.setScalarSelection(field_name)
+        if self.sceneObject is None:
             self.model.set_field_parameters(params)
             self.draw(scene)
         else:
             scalar = self._fields[self.fieldName]
 
-            if scalar == None:
+            if scalar is None:
                 if 'color' not in self.renderArgs:
                     colour = self.defaultColour
                 else:
@@ -223,7 +217,7 @@ class MayaviViewerFieldworkModel(MayaviViewerObject):
                 self.sceneObject.mesh.actor.property.color = colour
             else:
                 if self.mergeGFVertices:
-                    scalar = scalar[self.uniqueVertexIndices]
+                    scalar = scalar[self._uniqueVertexIndices]
                 self.sceneObject.mesh.mlab_source.set(scalars=scalar)
                 self.sceneObject.mesh.actor.mapper.scalar_visibility = True
 

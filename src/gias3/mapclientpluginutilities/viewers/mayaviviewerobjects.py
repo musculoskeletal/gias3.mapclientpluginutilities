@@ -11,11 +11,6 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ===============================================================================
 """
-
-import os
-
-os.environ['ETS_TOOLKIT'] = 'qt5'
-
 colours = {'bone': (0.84705882, 0.8, 0.49803922)}
 
 
@@ -27,8 +22,8 @@ class MayaviViewerObject(object):
     def draw(self, scene):
         pass
 
-    def setScalarSelection(self, scalarName):
-        self.scalarName = scalarName
+    def setScalarSelection(self, scalar_name):
+        self.scalarName = scalar_name
 
     def setVisibility(self, visible):
         pass

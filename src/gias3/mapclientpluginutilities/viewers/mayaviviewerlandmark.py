@@ -14,18 +14,16 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import numpy as np
 
-from gias2.mappluginutils.mayaviviewer.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject
+from gias3.mapclientpluginutilities.viewers.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject
 
 
 class MayaviViewerLandmarkSceneObject(MayaviViewerSceneObject):
     typeName = 'landmark'
 
-    def __init__(self, name, sceneObject=None):
+    def __init__(self, name, scene_object=None):
+        super().__init__()
         self.name = name
-        if sceneObject == None:
-            self.sceneObject = {}
-        else:
-            self.sceneObject = sceneObject
+        self.sceneObject = {} if scene_object is None else scene_object
 
     def addSceneObject(self, name, obj):
         self.sceneObject[name] = obj
@@ -54,15 +52,17 @@ class MayaviViewerLandmark(MayaviViewerObject):
                        )
     add3DText = False
 
-    def __init__(self, name, landmarkCoords, drawWidthTubes=False, text2d=False, renderArgs=None):
+    def __init__(self, name, landmark_coordinates, draw_width_tubes=False, text2d=False, render_args=None):
+        super().__init__()
         self.name = name
-        self.coords = landmarkCoords
-        self._drawWidthTubes = drawWidthTubes
+        self.coords = landmark_coordinates
+        self._drawWidthTubes = draw_width_tubes
         self._text2d = text2d
         self.sceneObject = None
+        self._M = None
 
-        if renderArgs is not None:
-            self._renderArgs = renderArgs
+        if render_args is not None:
+            self._renderArgs = render_args
 
         self._renderArgs['name'] = self.name
 
@@ -131,9 +131,9 @@ class MayaviViewerLandmark(MayaviViewerObject):
         if self.add3DText:
             self._addText3D(scene, C, [20.0, 0.0, 0.0])
 
-    def updateGeometry(self, coords, scene):
-        self.coords = coords
-        if self.sceneObject == None:
+    def updateGeometry(self, coordinates, scene):
+        self.coords = coordinates
+        if self.sceneObject is None:
             self.draw(scene)
         else:
             self.sceneObject.remove()

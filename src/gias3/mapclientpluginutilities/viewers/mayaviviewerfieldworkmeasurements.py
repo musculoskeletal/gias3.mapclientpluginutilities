@@ -15,7 +15,7 @@ import logging
 
 import numpy as np
 
-from gias2.mappluginutils.mayaviviewer.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject
+from gias3.mapclientpluginutilities.viewers.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject
 
 log = logging.getLogger(__name__)
 
@@ -23,12 +23,10 @@ log = logging.getLogger(__name__)
 class MayaviViewerFieldworkMeasurementsSceneObject(MayaviViewerSceneObject):
     typeName = 'fieldworkmeasurements'
 
-    def __init__(self, name, sceneObject=None):
+    def __init__(self, name, scene_object=None):
+        super().__init__()
         self.name = name
-        if sceneObject == None:
-            self.sceneObject = {}
-        else:
-            self.sceneObject = sceneObject
+        self.sceneObject = {} if scene_object is None else scene_object
 
     def addSceneObject(self, name, obj):
         self.sceneObject[name] = obj
@@ -47,16 +45,17 @@ class MayaviViewerFieldworkMeasurementsSceneObject(MayaviViewerSceneObject):
 class MayaviViewerFemurMeasurements(MayaviViewerObject):
     typeName = 'fieldworkmeasurements'
     textMeasurements = (
-    'head_diameter', 'neck_width', 'neck_shaft_angle', 'femoral_axis_length', 'subtrochanteric_width')
+        'head_diameter', 'neck_width', 'neck_shaft_angle', 'femoral_axis_length', 'subtrochanteric_width')
     tubeRadius = 2.0
     textLineRadius = 0.5
     charWidth = 0.01
     textColour = (1, 1, 1)
 
-    def __init__(self, name, measurements, drawWidthTubes=False, text2d=False):
+    def __init__(self, name, measurements, draw_width_tubes=False, text2d=False):
+        super().__init__()
         self.name = name
         self._M = measurements
-        self._drawWidthTubes = drawWidthTubes
+        self._drawWidthTubes = draw_width_tubes
         self._text2d = text2d
         self.sceneObject = None
 

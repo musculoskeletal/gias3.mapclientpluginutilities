@@ -12,13 +12,14 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ===============================================================================
 """
 
-from gias2.mappluginutils.mayaviviewer.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject, colours
+from gias3.mapclientpluginutilities.viewers.mayaviviewerobjects import MayaviViewerSceneObject, MayaviViewerObject, colours
 
 
 class MayaviViewerDataPointsSceneObject(MayaviViewerSceneObject):
     typeName = 'datapoints'
 
     def __init__(self, name, points):
+        super().__init__()
         self.name = name
         self.points = points
 
@@ -33,20 +34,21 @@ class MayaviViewerDataPointsSceneObject(MayaviViewerSceneObject):
 class MayaviViewerDataPoints(MayaviViewerObject):
     typeName = 'datapoints'
 
-    def __init__(self, name, coords, scalars=None, renderArgs=None):
+    def __init__(self, name, coordinates, scalars=None, render_args=None):
+        super().__init__()
         self.name = name
-        self.coords = coords
+        self._coordinates = coordinates
 
         self.scalarName = 'None'
-        if scalars == None:
+        if scalars is None:
             self.scalars = {}
         else:
             self.scalars = scalars
 
-        if renderArgs == None:
+        if render_args is None:
             self.renderArgs = {}
         else:
-            self.renderArgs = renderArgs
+            self.renderArgs = render_args
 
         self.sceneObject = None
         self.defaultColour = colours['bone']
@@ -65,39 +67,39 @@ class MayaviViewerDataPoints(MayaviViewerObject):
 
     def draw(self, scene):
         scene.disable_render = True
-        d = self.coords
+        d = self._coordinates
         s = self.scalars.get(self.scalarName)
         renderArgs = self.renderArgs
-        if s != None:
-            self.sceneObject = MayaviViewerDataPointsSceneObject(self.name, \
+        if s is not None:
+            self.sceneObject = MayaviViewerDataPointsSceneObject(self.name,
                                                                  scene.mlab.points3d(d[:, 0], d[:, 1], d[:, 2], s,
                                                                                      **renderArgs))
         else:
-            self.sceneObject = MayaviViewerDataPointsSceneObject(self.name, \
+            self.sceneObject = MayaviViewerDataPointsSceneObject(self.name,
                                                                  scene.mlab.points3d(d[:, 0], d[:, 1], d[:, 2],
                                                                                      **renderArgs))
 
         scene.disable_render = False
         return self.sceneObject
 
-    def updateGeometry(self, coords, scene):
+    def updateGeometry(self, coordinates, scene):
 
-        if self.sceneObject == None:
-            self.coords = coords
+        if self.sceneObject is None:
+            self._coordinates = coordinates
             self.draw(scene)
         else:
-            self.sceneObject.points.mlab_source.set(x=coords[:, 0], y=coords[:, 1], z=coords[:, 2])
-            self.coords = coords
+            self.sceneObject.points.mlab_source.set(x=coordinates[:, 0], y=coordinates[:, 1], z=coordinates[:, 2])
+            self._coordinates = coordinates
 
-    def updateScalar(self, scalarName, scene):
-        self.setScalarSelection(scalarName)
-        if self.sceneObject == None:
+    def updateScalar(self, scalar_name, scene):
+        self.setScalarSelection(scalar_name)
+        if self.sceneObject is None:
             self.draw(scene)
         else:
-            d = self.coords
+            d = self._coordinates
             s = self.scalars.get(self.scalarName)
             renderArgs = self.renderArgs
-            if s != None:
+            if s is not None:
                 self.sceneObject.points.actor.mapper.scalar_visibility = True
                 self.sceneObject.points.mlab_source.reset(x=d[:, 0], y=d[:, 1], z=d[:, 2], s=s)
             else:
