@@ -55,8 +55,8 @@ class MayaviViewerDataPoints(MayaviViewerObject):
         if 'color' not in list(self.renderArgs.keys()):
             self.renderArgs['color'] = self.defaultColour
 
-    def setScalarSelection(self, scalarName):
-        self.scalarName = scalarName
+    def setScalarSelection(self, scalar_name):
+        self.scalarName = scalar_name
 
     def setVisibility(self, visible):
         self.sceneObject.setVisibility(visible)
@@ -69,15 +69,15 @@ class MayaviViewerDataPoints(MayaviViewerObject):
         scene.disable_render = True
         d = self._coordinates
         s = self.scalars.get(self.scalarName)
-        renderArgs = self.renderArgs
+        render_args = self.renderArgs
         if s is not None:
             self.sceneObject = MayaviViewerDataPointsSceneObject(self.name,
                                                                  scene.mlab.points3d(d[:, 0], d[:, 1], d[:, 2], s,
-                                                                                     **renderArgs))
+                                                                                     **render_args))
         else:
             self.sceneObject = MayaviViewerDataPointsSceneObject(self.name,
                                                                  scene.mlab.points3d(d[:, 0], d[:, 1], d[:, 2],
-                                                                                     **renderArgs))
+                                                                                     **render_args))
 
         scene.disable_render = False
         return self.sceneObject
@@ -98,15 +98,15 @@ class MayaviViewerDataPoints(MayaviViewerObject):
         else:
             d = self._coordinates
             s = self.scalars.get(self.scalarName)
-            renderArgs = self.renderArgs
+            render_args = self.renderArgs
             if s is not None:
                 self.sceneObject.points.actor.mapper.scalar_visibility = True
                 self.sceneObject.points.mlab_source.reset(x=d[:, 0], y=d[:, 1], z=d[:, 2], s=s)
             else:
-                if 'color' not in renderArgs:
+                if 'color' not in render_args:
                     color = self.defaultColour
                 else:
-                    color = renderArgs['color']
+                    color = render_args['color']
 
                 self.sceneObject.points.actor.mapper.scalar_visibility = False
                 self.sceneObject.points.actor.property.specular_color = color
