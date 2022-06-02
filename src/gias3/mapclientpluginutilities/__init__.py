@@ -17,9 +17,4 @@ This file is part of GIAS. (https://bitbucket.org/jangle/gias)
     You should have received a copy of the GNU General Public License
     along with GIAS.  If not, see <http://www.gnu.org/licenses/>..
 """
-import os
-
-
 __version__ = "3.0.0"
-
-os.environ['ETS_TOOLKIT'] = 'qt'
