@@ -13,7 +13,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 """
 
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 from traits.api import HasTraits, Instance
 from traitsui.api import View, Item
@@ -43,7 +43,7 @@ class Visualisation(HasTraits):
 
 
 ################################################################################
-# The QWidget containing the visualization, this is pure PySide2 code.
+# The QWidget containing the visualization, this is pure PySide6 code.
 class MayaviSceneWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
